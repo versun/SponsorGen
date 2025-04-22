@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sponsorgen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sponsorgen:latest
+    container_name: sponsorgen
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config.yaml:/root/config.yaml
+      - sponsor_output:/root/output
+      - sponsor_cache:/root/cache
+    command: ["-config", "/root/config.yaml", "-port", "5000"]
+    environment:
+      - TZ=UTC
+
+volumes:
+  sponsor_output:
+    driver: local
+  sponsor_cache:
+    driver: local

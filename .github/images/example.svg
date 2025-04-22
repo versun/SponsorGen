@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="100" viewBox="0 0 800 100">
+  <rect width="800" height="100" fill="transparent"/>
+  
+  <!-- Sponsor 1 -->
+  <a href="#sponsor1" target="_blank">
+    <circle cx="30" cy="30" r="22.5" fill="#f9f9f9" stroke="#eee" stroke-width="1"/>
+    <text x="30" y="80" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="12" text-anchor="middle" fill="#666">赞助者1</text>
+  </a>
+  
+  <!-- Sponsor 2 -->
+  <a href="#sponsor2" target="_blank">
+    <circle cx="85" cy="30" r="22.5" fill="#f9f9f9" stroke="#eee" stroke-width="1"/>
+    <text x="85" y="80" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="12" text-anchor="middle" fill="#666">赞助者2</text>
+  </a>
+  
+  <!-- Sponsor 3 -->
+  <a href="#sponsor3" target="_blank">
+    <circle cx="140" cy="30" r="22.5" fill="#f9f9f9" stroke="#eee" stroke-width="1"/>
+    <text x="140" y="80" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="12" text-anchor="middle" fill="#666">赞助者3</text>
+  </a>
+  
+  <!-- Sponsor 4 -->
+  <a href="#sponsor4" target="_blank">
+    <circle cx="195" cy="30" r="22.5" fill="#f9f9f9" stroke="#eee" stroke-width="1"/>
+    <text x="195" y="80" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="12" text-anchor="middle" fill="#666">赞助者4</text>
+  </a>
+  
+  <!-- Sponsor 5 -->
+  <a href="#sponsor5" target="_blank">
+    <circle cx="250" cy="30" r="22.5" fill="#f9f9f9" stroke="#eee" stroke-width="1"/>
+    <text x="250" y="80" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="12" text-anchor="middle" fill="#666">赞助者5</text>
+  </a>
+  
+  <!-- More sponsors... -->
+  <text x="320" y="30" font-family="system-ui, -apple-system, 'Segoe UI', Roboto" font-size="14" fill="#888">...</text>
+</svg>

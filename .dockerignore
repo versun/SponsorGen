@@ -1,0 +1,24 @@
+# Git files
+.git
+.gitignore
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Cache and output directories (we'll create these in the container)
+/cache/*
+/output/*
+
+# Any local development or IDE files
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Log files
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db
