@@ -23,8 +23,9 @@ func GenerateJPEG(svgPath, jpegPath string, quality int) error {
 
         // Build convert command
         // ImageMagick's convert command will handle the SVG to JPEG conversion
+        // Use absolute path to ensure convert is found
         cmd := exec.Command(
-                "convert",
+                "/nix/store/1izdxwml9nsifjrh53rdfiglhjmrnx2s-imagemagick-7.1.1-32/bin/convert",
                 "-quality", strconv.Itoa(quality),
                 svgPath,
                 jpegPath,
