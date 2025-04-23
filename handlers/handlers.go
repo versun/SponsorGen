@@ -100,8 +100,9 @@ func (h *Handler) IndexHandler(w http.ResponseWriter, r *http.Request) {
     
     <div class="links">
         <a href="/sponsors.svg">View Sponsors SVG</a>
-        <a href="/sponsors.jpg">View Sponsors JPEG</a>
+        <a href="/sponsors.png">View Sponsors PNG (Transparent Background)</a>
         <a href="/sponsors.json">View Sponsors JSON</a>
+        <a href="/sponsors.jpg" style="color: #999; text-decoration: line-through;">View Sponsors JPEG (Deprecated)</a>
     </div>
     
     <h2>Current Sponsors</h2>
@@ -172,7 +173,7 @@ func (h *Handler) JSONHandler(w http.ResponseWriter, r *http.Request) {
         http.ServeFile(w, r, jsonPath)
 }
 
-// JPEGHandler serves the generated JPEG
+// JPEGHandler serves the generated JPEG (deprecated, will be removed in future versions)
 func (h *Handler) JPEGHandler(w http.ResponseWriter, r *http.Request) {
         h.mutex.RLock()
         defer h.mutex.RUnlock()
@@ -213,6 +214,49 @@ func (h *Handler) JPEGHandler(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "image/jpeg")
         w.Header().Set("Cache-Control", "no-cache, max-age=0")
         http.ServeFile(w, r, jpegPath)
+}
+
+// PNGHandler serves the generated PNG with transparent background
+func (h *Handler) PNGHandler(w http.ResponseWriter, r *http.Request) {
+        h.mutex.RLock()
+        defer h.mutex.RUnlock()
+
+        // Check if regeneration is needed
+        if h.shouldRegenerate() {
+                h.mutex.RUnlock()
+                if err := h.GenerateSponsors(); err != nil {
+                        h.mutex.RLock()
+                        http.Error(w, "Failed to generate sponsor data", http.StatusInternalServerError)
+                        return
+                }
+                h.mutex.RLock()
+        }
+
+        // Check for SVG file
+        svgPath := filepath.Join(h.Config.OutputDir, "sponsors.svg")
+        if _, err := os.Stat(svgPath); os.IsNotExist(err) {
+                http.Error(w, "SVG file not found", http.StatusNotFound)
+                return
+        }
+
+        // PNG path
+        pngPath := filepath.Join(h.Config.OutputDir, "sponsors.png")
+
+        // Generate PNG from SVG if needed
+        if _, err := os.Stat(pngPath); os.IsNotExist(err) {
+                h.mutex.RUnlock()
+                if err := generator.GeneratePNG(svgPath, pngPath, 90); err != nil {
+                        h.mutex.RLock()
+                        http.Error(w, "Failed to generate PNG: "+err.Error(), http.StatusInternalServerError)
+                        return
+                }
+                h.mutex.RLock()
+        }
+
+        // Serve the PNG file
+        w.Header().Set("Content-Type", "image/png")
+        w.Header().Set("Cache-Control", "no-cache, max-age=0")
+        http.ServeFile(w, r, pngPath)
 }
 
 // RefreshHandler forces a regeneration of sponsor data
@@ -361,11 +405,18 @@ func (h *Handler) GenerateSponsors() error {
                 return fmt.Errorf("failed to generate SVG: %w", err)
         }
         
-        // Remove any existing JPEG file to force regeneration
+        // Remove any existing image files to force regeneration
         jpegPath := filepath.Join(h.Config.OutputDir, "sponsors.jpg")
         if _, err := os.Stat(jpegPath); err == nil {
                 if err := os.Remove(jpegPath); err != nil {
                         log.Printf("Warning: Failed to remove existing JPEG file: %v", err)
+                }
+        }
+        
+        pngPath := filepath.Join(h.Config.OutputDir, "sponsors.png")
+        if _, err := os.Stat(pngPath); err == nil {
+                if err := os.Remove(pngPath); err != nil {
+                        log.Printf("Warning: Failed to remove existing PNG file: %v", err)
                 }
         }
 
@@ -388,7 +439,7 @@ func (h *Handler) GenerateSponsors() error {
         h.sponsors = allSponsors
         h.lastGeneration = time.Now()
 
-        log.Printf("Generated sponsors SVG and JSON successfully (JPEG will be generated on first request)")
+        log.Printf("Generated sponsors SVG and JSON successfully (PNG and JPEG will be generated on first request)")
         return nil
 }
 
