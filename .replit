@@ -1,4 +1,4 @@
-modules = ["go"]
+modules = ["go", "golang-1.21"]
 
 [nix]
 channel = "stable-24_05"

@@ -11,12 +11,18 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./config.yaml:/root/config.yaml
-      - sponsor_output:/root/output
-      - sponsor_cache:/root/cache
-    command: ["-config", "/root/config.yaml", "-port", "5000"]
+      - ./config.yaml:/app/config.yaml
+      - sponsor_output:/app/output
+      - sponsor_cache:/app/cache
+    command: ["-config", "/app/config.yaml", "-port", "5000"]
     environment:
       - TZ=UTC
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/sponsors.json"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
 volumes:
   sponsor_output:
