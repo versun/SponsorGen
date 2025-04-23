@@ -8,7 +8,7 @@
 
 下面是一个示例SVG赞助者展示：
 
-![赞助者展示示例](.github/images/example.svg)
+![赞助者展示示例](https://supporters.versun.me/sponsors.png)
 
 ## 功能特性
 
