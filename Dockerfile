@@ -55,4 +55,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 # Command to run
 ENTRYPOINT ["./sponsorgen"]
 # Default arguments, can be overridden at runtime
-CMD ["-config", "config.yaml", "-port", "5000"]
+CMD ["-config", "/app/config.yaml", "-port", "5000"]
