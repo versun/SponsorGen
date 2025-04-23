@@ -57,6 +57,7 @@ func main() {
         http.HandleFunc("/", handler.IndexHandler)
         http.HandleFunc("/sponsors.svg", handler.SVGHandler)
         http.HandleFunc("/sponsors.json", handler.JSONHandler)
+        http.HandleFunc("/sponsors.jpg", handler.JPEGHandler)
         http.HandleFunc("/refresh", handler.RefreshHandler)
 
         // Serve static files
@@ -69,6 +70,7 @@ func main() {
         log.Printf("Configuration loaded from environment variables")
         log.Printf("Serving SVG at http://localhost:%d/sponsors.svg", *port)
         log.Printf("Serving JSON at http://localhost:%d/sponsors.json", *port)
+        log.Printf("Serving JPEG at http://localhost:%d/sponsors.jpg", *port)
         log.Printf("Force refresh with http://localhost:%d/refresh", *port)
 
         // Generate initial sponsor data
