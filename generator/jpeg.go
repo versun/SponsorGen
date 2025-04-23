@@ -1,47 +1,18 @@
 package generator
 
 import (
-        "bytes"
         "fmt"
-        "image"
-        "image/jpeg"
         "os"
-
-        "github.com/srwiley/oksvg"
-        "github.com/srwiley/rasterx"
+        "os/exec"
+        "strconv"
 )
 
-// GenerateJPEG generates a JPEG file from the SVG sponsors image
+// GenerateJPEG generates a JPEG file from the SVG sponsors image using ImageMagick
 func GenerateJPEG(svgPath, jpegPath string, quality int) error {
-        // Read the SVG file
-        svgBytes, err := os.ReadFile(svgPath)
-        if err != nil {
-                return fmt.Errorf("failed to read SVG file: %w", err)
+        // Check if the SVG file exists
+        if _, err := os.Stat(svgPath); os.IsNotExist(err) {
+                return fmt.Errorf("SVG file does not exist at path %s: %w", svgPath, err)
         }
-
-        // Parse SVG bytes
-        icon, err := oksvg.ReadIconStream(bytes.NewReader(svgBytes))
-        if err != nil {
-                return fmt.Errorf("failed to parse SVG: %w", err)
-        }
-
-        // Get icon dimensions
-        w, h := int(icon.ViewBox.W), int(icon.ViewBox.H)
-        img := image.NewRGBA(image.Rect(0, 0, w, h))
-
-        // Create a rasterizer for SVG
-        scanner := rasterx.NewScannerGV(w, h, img, img.Bounds())
-        raster := rasterx.NewDasher(w, h, scanner)
-
-        // Rasterize the SVG to the image
-        icon.Draw(raster, 1.0)
-
-        // Create the output file
-        file, err := os.Create(jpegPath)
-        if err != nil {
-                return fmt.Errorf("failed to create JPEG file: %w", err)
-        }
-        defer file.Close()
 
         // Set JPEG quality (1-100)
         if quality < 1 {
@@ -50,9 +21,24 @@ func GenerateJPEG(svgPath, jpegPath string, quality int) error {
                 quality = 100 // max quality
         }
 
-        // Encode as JPEG
-        if err := jpeg.Encode(file, img, &jpeg.Options{Quality: quality}); err != nil {
-                return fmt.Errorf("failed to encode JPEG: %w", err)
+        // Build convert command
+        // ImageMagick's convert command will handle the SVG to JPEG conversion
+        cmd := exec.Command(
+                "convert",
+                "-quality", strconv.Itoa(quality),
+                svgPath,
+                jpegPath,
+        )
+
+        // Run the command
+        output, err := cmd.CombinedOutput()
+        if err != nil {
+                return fmt.Errorf("failed to convert SVG to JPEG: %s (%w)", string(output), err)
+        }
+
+        // Verify the output file was created
+        if _, err := os.Stat(jpegPath); os.IsNotExist(err) {
+                return fmt.Errorf("conversion completed but JPEG file not found at %s", jpegPath)
         }
 
         return nil

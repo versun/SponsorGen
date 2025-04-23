@@ -2,6 +2,7 @@ modules = ["go", "golang-1.21", "docker", "postgresql-16"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["imagemagick"]
 
 [workflows]
 runButton = "Project"
