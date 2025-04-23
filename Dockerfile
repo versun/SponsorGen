@@ -1,61 +1,37 @@
-# Build stage
 FROM golang:1.21-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache git
-
-# Set working directory
 WORKDIR /app
 
-# Copy go mod and sum files
+# 复制go模块文件
 COPY go.mod go.sum ./
-
-# Download all dependencies
 RUN go mod download
 
-# Copy the source code
+# 复制源代码
 COPY . .
 
-# Ensure config.yaml exists (for debugging)
-RUN ls -la && echo "Checking for config.yaml:" && ls -la config.yaml
+# 编译
+RUN CGO_ENABLED=0 GOOS=linux go build -o sponsorgen .
 
-# Build the application with optimizations
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o sponsorgen .
+# 使用精简的alpine镜像
+FROM alpine:latest
 
-# Final stage - using smaller alpine image
-FROM alpine:3.19
+RUN apk --no-cache add ca-certificates tzdata && \
+    mkdir -p /app/output /app/cache /app/assets
 
-# Install necessary packages (ca-certificates for HTTPS connections)
-RUN apk --no-cache add ca-certificates tzdata
-
-# Create a non-root user to run the application
-RUN adduser -D -h /app appuser
-
-# Set working directory
 WORKDIR /app
 
-# Copy the binary from builder
+# 复制编译好的二进制文件
 COPY --from=builder /app/sponsorgen .
+COPY assets ./assets
 
-# Copy configuration and asset files
-COPY --from=builder /app/config.yaml ./config.yaml
-COPY --from=builder /app/assets ./assets
-
-# Create necessary directories with proper permissions
-RUN mkdir -p ./output ./cache && \
-    chown -R appuser:appuser /app
-
-# Switch to non-root user
-USER appuser
-
-# Expose the default port (match with docker-compose and workflow)
+# 暴露默认端口
 EXPOSE 5000
 
-# Add health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/sponsors.json || exit 1
+# 设置默认环境变量
+ENV OUTPUT_DIR="/app/output" \
+    CACHE_DIR="/app/cache" \
+    DEFAULT_AVATAR="/app/assets/default_avatar.svg" \
+    REFRESH_MINUTES="60"
 
-# Command to run
-ENTRYPOINT ["./sponsorgen"]
-# Default arguments, can be overridden at runtime
-CMD ["-config", "./config.yaml", "-port", "5000"]
+# 启动服务
+CMD ["./sponsorgen", "-port", "5000"]

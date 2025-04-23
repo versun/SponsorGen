@@ -1,31 +1,51 @@
-version: '3.8'
+version: '3'
 
 services:
   sponsorgen:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     image: sponsorgen:latest
     container_name: sponsorgen
-    restart: unless-stopped
     ports:
       - "5000:5000"
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - sponsor_output:/app/output
-      - sponsor_cache:/app/cache
-    command: ["-config", "./config.yaml", "-port", "5000"]
     environment:
-      - TZ=UTC
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/sponsors.json"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
+      # 输出设置
+      - OUTPUT_DIR=/app/output
+      - CACHE_DIR=/app/cache
+      - DEFAULT_AVATAR=/app/assets/default_avatar.svg
+      - REFRESH_MINUTES=60
 
-volumes:
-  sponsor_output:
-    driver: local
-  sponsor_cache:
-    driver: local
+      # GitHub赞助设置（示例，需要替换为实际值）
+      # - GITHUB_TOKEN=your_github_token
+      # - GITHUB_LOGIN=your_github_login
+      # - INCLUDE_PRIVATE=false
+      # - GITHUB_ORGS=org1,org2,org3
+      # - EXCLUDE_SPONSORS=user1,user2
+      # - INCLUDE_SPONSORS=user3,user4
+
+      # OpenCollective设置（示例，需要替换为实际值）
+      # - OPENCOLLECTIVE_SLUG=your_opencollective_slug
+      # - OPENCOLLECTIVE_KEY=your_opencollective_key
+
+      # Patreon设置（示例，需要替换为实际值）
+      # - PATREON_TOKEN=your_patreon_token
+      # - PATREON_CAMPAIGN_ID=your_patreon_campaign_id
+
+      # Afdian设置（示例，需要替换为实际值）
+      # - AFDIAN_USER_ID=your_afdian_user_id
+      # - AFDIAN_TOKEN=your_afdian_token
+
+      # 渲染设置
+      - AVATAR_SIZE=45
+      - AVATAR_MARGIN=5
+      - SVG_WIDTH=800
+      - FONT_SIZE=14
+      - FONT_FAMILY=system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif
+      - SHOW_AMOUNT=false
+      - SHOW_NAME=false
+      - BACKGROUND_COLOR=transparent
+      - PADDING_X=10
+      - PADDING_Y=10
+    volumes:
+      - ./output:/app/output
+      - ./cache:/app/cache
+    restart: unless-stopped
