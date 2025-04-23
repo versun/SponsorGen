@@ -21,8 +21,24 @@ func GenerateJPEG(svgPath, jpegPath string, quality int) error {
                 quality = 100 // max quality
         }
 
-        // Build convert command
-        // ImageMagick's convert command will handle the SVG to JPEG conversion
+        // First try with 'magick' command (newer ImageMagick v7)
+        magickCmd := exec.Command(
+                "magick",
+                "convert",
+                "-quality", strconv.Itoa(quality),
+                svgPath,
+                jpegPath,
+        )
+
+        magickOutput, magickErr := magickCmd.CombinedOutput()
+        if magickErr == nil {
+                // Check if file was created successfully
+                if _, err := os.Stat(jpegPath); err == nil {
+                        return nil
+                }
+        }
+
+        // If 'magick' command fails, try with legacy 'convert' command (IMv6)
         cmd := exec.Command(
                 "convert",
                 "-quality", strconv.Itoa(quality),
@@ -33,7 +49,9 @@ func GenerateJPEG(svgPath, jpegPath string, quality int) error {
         // Run the command
         output, err := cmd.CombinedOutput()
         if err != nil {
-                return fmt.Errorf("failed to convert SVG to JPEG: %s (%w)", string(output), err)
+                // Include both error outputs in the error message
+                return fmt.Errorf("failed to convert SVG to JPEG: %s (%w). Magick error: %s", 
+                        string(output), err, string(magickOutput))
         }
 
         // Verify the output file was created
