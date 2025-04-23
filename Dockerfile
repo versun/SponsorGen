@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o sponsorgen .
 # 使用精简的alpine镜像
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates tzdata && \
+RUN apk --no-cache add ca-certificates tzdata imagemagick && \
     mkdir -p /app/output /app/cache /app/assets
 
 WORKDIR /app
