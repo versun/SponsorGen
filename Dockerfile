@@ -16,6 +16,9 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
+# Ensure config.yaml exists (for debugging)
+RUN ls -la && echo "Checking for config.yaml:" && ls -la config.yaml
+
 # Build the application with optimizations
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o sponsorgen .
 
@@ -35,7 +38,7 @@ WORKDIR /app
 COPY --from=builder /app/sponsorgen .
 
 # Copy configuration and asset files
-COPY --from=builder /app/config.yaml .
+COPY --from=builder /app/config.yaml ./config.yaml
 COPY --from=builder /app/assets ./assets
 
 # Create necessary directories with proper permissions
@@ -55,4 +58,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 # Command to run
 ENTRYPOINT ["./sponsorgen"]
 # Default arguments, can be overridden at runtime
-CMD ["-config", "/app/config.yaml", "-port", "5000"]
+CMD ["-config", "./config.yaml", "-port", "5000"]
