@@ -101,8 +101,8 @@ func (h *Handler) IndexHandler(w http.ResponseWriter, r *http.Request) {
     <div class="links">
         <a href="/sponsors.svg">View Sponsors SVG</a>
         <a href="/sponsors.png">View Sponsors PNG (Transparent Background)</a>
+        <a href="/sponsors.jpg">View Sponsors JPEG</a>
         <a href="/sponsors.json">View Sponsors JSON</a>
-        <a href="/sponsors.jpg" style="color: #999; text-decoration: line-through;">View Sponsors JPEG (Deprecated)</a>
     </div>
     
     <h2>Current Sponsors</h2>
@@ -173,7 +173,7 @@ func (h *Handler) JSONHandler(w http.ResponseWriter, r *http.Request) {
         http.ServeFile(w, r, jsonPath)
 }
 
-// JPEGHandler serves the generated JPEG (deprecated, will be removed in future versions)
+// JPEGHandler serves the generated JPEG
 func (h *Handler) JPEGHandler(w http.ResponseWriter, r *http.Request) {
         h.mutex.RLock()
         defer h.mutex.RUnlock()
