@@ -3,55 +3,52 @@ package config
 import (
         "fmt"
         "os"
+        "strconv"
         "strings"
-
-        "gopkg.in/yaml.v2"
 )
 
 // Config represents the application configuration
 type Config struct {
         // Output settings
-        OutputDir      string `yaml:"outputDir"`
-        CacheDir       string `yaml:"cacheDir"`
-        SVGTemplate    string `yaml:"svgTemplate"`
-        DefaultAvatar  string `yaml:"defaultAvatar"`
-        RefreshMinutes int    `yaml:"refreshMinutes"`
+        OutputDir      string
+        CacheDir       string
+        SVGTemplate    string
+        DefaultAvatar  string
+        RefreshMinutes int
 
         // GitHub sponsor settings
-        GitHubToken      string   `yaml:"githubToken"`
-        GitHubLogin      string   `yaml:"githubLogin"`
-        IncludePrivate   bool     `yaml:"includePrivate"`
-        GitHubOrgs       []string `yaml:"githubOrgs"`
-        ExcludeSponsors  []string `yaml:"excludeSponsors"`
-        IncludeSponsors  []string `yaml:"includeSponsors"`
-        ForceSponsorAmounts map[string]float64 `yaml:"forceSponsorAmounts"`
+        GitHubToken          string
+        GitHubLogin          string
+        IncludePrivate       bool
+        GitHubOrgs           []string
+        ExcludeSponsors      []string
+        IncludeSponsors      []string
+        ForceSponsorAmounts  map[string]float64
 
         // OpenCollective settings
-        OpenCollectiveSlug string `yaml:"openCollectiveSlug"`
-        OpenCollectiveKey  string `yaml:"openCollectiveKey"`
+        OpenCollectiveSlug   string
+        OpenCollectiveKey    string
 
         // Patreon settings
-        PatreonToken      string `yaml:"patreonToken"`
-        PatreonCampaignID string `yaml:"patreonCampaignId"`
+        PatreonToken         string
+        PatreonCampaignID    string
 
         // Afdian settings
-        AfdianUserID      string `yaml:"afdianUserId"`
-        AfdianToken       string `yaml:"afdianToken"`
+        AfdianUserID         string
+        AfdianToken          string
 
         // Rendering settings
-        AvatarSize       int    `yaml:"avatarSize"`
-        AvatarMargin     int    `yaml:"avatarMargin"`
-        SVGWidth         int    `yaml:"svgWidth"`
-        FontSize         int    `yaml:"fontSize"`
-        FontFamily       string `yaml:"fontFamily"`
-        ShowAmount       bool   `yaml:"showAmount"`
-        ShowName         bool   `yaml:"showName"`
-        BackgroundColor  string `yaml:"backgroundColor"`
-        PaddingX         int    `yaml:"paddingX"`
-        PaddingY         int    `yaml:"paddingY"`
+        AvatarSize           int
+        AvatarMargin         int
+        SVGWidth             int
+        FontSize             int
+        FontFamily           string
+        ShowAmount           bool
+        ShowName             bool
+        BackgroundColor      string
+        PaddingX             int
+        PaddingY             int
 }
-
-
 
 // DefaultConfig returns a default configuration
 func DefaultConfig() Config {
@@ -86,38 +83,132 @@ func DefaultConfig() Config {
         }
 }
 
-// LoadConfig loads the configuration from a file
-func LoadConfig(filename string) (Config, error) {
+// LoadConfig loads the configuration from environment variables
+func LoadConfig() (Config, error) {
         config := DefaultConfig()
 
-        data, err := os.ReadFile(filename)
-        if err != nil {
-                return config, fmt.Errorf("reading config file: %w", err)
+        // Output settings
+        if env := os.Getenv("OUTPUT_DIR"); env != "" {
+                config.OutputDir = env
+        }
+        
+        if env := os.Getenv("CACHE_DIR"); env != "" {
+                config.CacheDir = env
+        }
+        
+        if env := os.Getenv("DEFAULT_AVATAR"); env != "" {
+                config.DefaultAvatar = env
+        }
+        
+        if env := os.Getenv("REFRESH_MINUTES"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.RefreshMinutes = val
+                }
         }
 
-        if err := yaml.Unmarshal(data, &config); err != nil {
-                return config, fmt.Errorf("parsing config file: %w", err)
-        }
-
-        // Check for environment variables to override config
+        // GitHub settings
         if env := os.Getenv("GITHUB_TOKEN"); env != "" {
                 config.GitHubToken = env
         }
+        
+        if env := os.Getenv("GITHUB_LOGIN"); env != "" {
+                config.GitHubLogin = env
+        }
+        
+        if env := os.Getenv("INCLUDE_PRIVATE"); env != "" {
+                config.IncludePrivate = (strings.ToLower(env) == "true")
+        }
+        
+        if env := os.Getenv("GITHUB_ORGS"); env != "" {
+                config.GitHubOrgs = strings.Split(env, ",")
+        }
+        
+        if env := os.Getenv("EXCLUDE_SPONSORS"); env != "" {
+                config.ExcludeSponsors = strings.Split(env, ",")
+        }
+        
+        if env := os.Getenv("INCLUDE_SPONSORS"); env != "" {
+                config.IncludeSponsors = strings.Split(env, ",")
+        }
 
+        // OpenCollective settings
+        if env := os.Getenv("OPENCOLLECTIVE_SLUG"); env != "" {
+                config.OpenCollectiveSlug = env
+        }
+        
         if env := os.Getenv("OPENCOLLECTIVE_KEY"); env != "" {
                 config.OpenCollectiveKey = env
         }
 
+        // Patreon settings
         if env := os.Getenv("PATREON_TOKEN"); env != "" {
                 config.PatreonToken = env
         }
         
+        if env := os.Getenv("PATREON_CAMPAIGN_ID"); env != "" {
+                config.PatreonCampaignID = env
+        }
+
+        // Afdian settings
         if env := os.Getenv("AFDIAN_USER_ID"); env != "" {
                 config.AfdianUserID = env
         }
         
         if env := os.Getenv("AFDIAN_TOKEN"); env != "" {
                 config.AfdianToken = env
+        }
+
+        // Rendering settings
+        if env := os.Getenv("AVATAR_SIZE"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.AvatarSize = val
+                }
+        }
+        
+        if env := os.Getenv("AVATAR_MARGIN"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.AvatarMargin = val
+                }
+        }
+        
+        if env := os.Getenv("SVG_WIDTH"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.SVGWidth = val
+                }
+        }
+        
+        if env := os.Getenv("FONT_SIZE"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.FontSize = val
+                }
+        }
+        
+        if env := os.Getenv("FONT_FAMILY"); env != "" {
+                config.FontFamily = env
+        }
+        
+        if env := os.Getenv("SHOW_AMOUNT"); env != "" {
+                config.ShowAmount = (strings.ToLower(env) == "true")
+        }
+        
+        if env := os.Getenv("SHOW_NAME"); env != "" {
+                config.ShowName = (strings.ToLower(env) == "true")
+        }
+        
+        if env := os.Getenv("BACKGROUND_COLOR"); env != "" {
+                config.BackgroundColor = env
+        }
+        
+        if env := os.Getenv("PADDING_X"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.PaddingX = val
+                }
+        }
+        
+        if env := os.Getenv("PADDING_Y"); env != "" {
+                if val, err := strconv.Atoi(env); err == nil {
+                        config.PaddingY = val
+                }
         }
 
         // Create SVG template if not provided

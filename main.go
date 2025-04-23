@@ -36,12 +36,11 @@ func scheduleMidnightRefresh(handler *handlers.Handler) {
 
 func main() {
         // Define command line flags
-        configPath := flag.String("config", "config.yaml", "Path to config file")
         port := flag.Int("port", 8000, "Port to serve on")
         flag.Parse()
 
-        // Load configuration
-        cfg, err := config.LoadConfig(*configPath)
+        // Load configuration from environment variables
+        cfg, err := config.LoadConfig()
         if err != nil {
                 log.Fatalf("Failed to load configuration: %v", err)
         }
@@ -67,7 +66,7 @@ func main() {
         // Start server
         addr := fmt.Sprintf("0.0.0.0:%d", *port)
         log.Printf("SponsorGen server starting on %s", addr)
-        log.Printf("Configuration loaded from %s", *configPath)
+        log.Printf("Configuration loaded from environment variables")
         log.Printf("Serving SVG at http://localhost:%d/sponsors.svg", *port)
         log.Printf("Serving JSON at http://localhost:%d/sponsors.json", *port)
         log.Printf("Force refresh with http://localhost:%d/refresh", *port)
