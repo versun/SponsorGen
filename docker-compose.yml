@@ -2,8 +2,7 @@ version: '3'
 
 services:
   sponsorgen:
-    build: .
-    image: sponsorgen:latest
+    image: ghcr.io/your-github-username/sponsorgen:latest
     container_name: sponsorgen
     ports:
       - "5000:5000"
