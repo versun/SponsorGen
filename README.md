@@ -26,7 +26,7 @@
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/username/sponsorgen:latest
+docker pull ghcr.io/versun/sponsorgen:latest
 
 # 运行容器（使用环境变量配置）
 docker run -p 5000:5000 \
@@ -34,7 +34,7 @@ docker run -p 5000:5000 \
   -e GITHUB_LOGIN=your_github_login \
   -e AFDIAN_USER_ID=your_afdian_user_id \
   -e AFDIAN_TOKEN=your_afdian_token \
-  ghcr.io/username/sponsorgen:latest
+  ghcr.io/versun/sponsorgen:latest
 ```
 
 或者使用docker-compose:
@@ -49,7 +49,7 @@ docker-compose up -d
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/username/sponsorgen.git
+git clone https://github.com/versun/sponsorgen.git
 cd sponsorgen
 ```
 
